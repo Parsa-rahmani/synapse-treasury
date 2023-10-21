@@ -1,0 +1,21 @@
+chains = {
+    'arbitrum': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/42161', 'bridge': '0x97a7af2A0323e2a40B866Df3A5F1F389427C9b68', 'multisig': '0x1d9Bfc24d9e7EeDa4119Ceca11EaF4c24E622E62'},
+    'aurora': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/1313161554', 'bridge': '0xebDe9A95FC0d36bcf12037C6F234E4a51f64d223', 'multisig': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d'},
+    'avax': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/43114', 'bridge': '0xA8240475Cc153944974DCE4D13C3b8E27effA8D5', 'multisig': '0xE9530411510c4D6CF699712904bECA2849488176'},
+    # 'base': {'url': 'https://developer-access-mainnet.base.org', 'bridge': '0x84A420459cd31C3c34583F67E0f0fB191067D32f', 'multisig': '0xE48de7c3A9094b2CbA88D4f72E3cbc2E60Fad8cF'},
+    'boba': {'url': 'https://mainnet.boba.network', 'bridge': '0x9007A80247D23Cc5C213A6DAcB385c632c4e19F2', 'multisig': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d'},
+    'bsc': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/56', 'bridge': '0x2264C28147BA42A687B5F223C8CaD704Fefc11be', 'multisig': '0x0056580B0E8136c482b03760295F912279170D46'},
+    'canto': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/7700', 'bridge': '0xd5609cD0e1675331E4Fb1d43207C8d9D83AAb17C', 'multisig': '0x02BA7A3Cd181a103Ba5702e708cF22de4Fa70254'},
+    'cronos': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/25', 'bridge': '0x432036208d2717394d2614d6697c46DF3Ed69540', 'multisig': '0x7f91f3111b2009eC7c079Be213570330a37e8aeC'},
+    'dfk': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/53935', 'bridge': '0x159F2A9D7304Da210bE99F3d704B9823486DE24E', 'multisig': '0x2e62c47f502f512c75bd5ecd70799efb0fe7baa3'},
+    'dogechain': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/2000', 'bridge': '0xAf41a65F786339e7911F4acDAD6BD49426F2Dc6b', 'multisig': '0x8f17b483982d1cc09296aed8f1b09ad830358a8d'},
+    'ethereum': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/1', 'bridge': '0x31fe393815822edacBd81C2262467402199EFD0D', 'multisig': '0x67F60b0891EBD842Ebe55E4CCcA1098d7Aac1A55'},
+    'fantom': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/250', 'bridge': '0xf46837caB330Fdb14943cee6a119D0e4FCb0C1D1', 'multisig': '0x224002428cF0BA45590e0022DF4b06653058F22F'},
+    # 'harmony': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/1666600000', 'bridge': '0xBe394900Ad6f64155318F8EaBE3708754dBAb95E', 'multisig': '0x0172e7190Bbc0C2Aa98E4d1281d41D0c07178605'},
+    # 'klaytn': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/8217', 'bridge': '0x20B587484E75752Adac381aE577a7562E7f358c5', 'multisig': '0x8f17B483982d1CC09296Aed8F1b09Ad830358A8D'},
+    'metis': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/1088', 'bridge': '0x6C8c6E68604e78B549C96907bfe9EBdaaC04e3B3', 'multisig': '0xEAEC50eBe1c2A981ED8be02C36b0863Fae322975'},
+    'moonriver': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/1285', 'bridge': '0xebDe9A95FC0d36bcf12037C6F234E4a51f64d223', 'multisig': '0x4bA30618fDcb184eC01a9B3CAe258CFc5786E70E'},
+    'moonbeam': {'url': 'https://rpc.api.moonbeam.network', 'bridge': '0xe1a77ce68DFf2f847c469b8c67Dc2A6d668D5E6F', 'multisig': '0xbb227Fcf45F9Dc5deF87208C534EAB1006d8Cc8d'},
+    'optimism': {'url': 'https://mainnet.optimism.io', 'bridge': '0x7ef7560789eE2cB301eC38c3C8B91bA8a94Cd1e4', 'multisig': '0x2431CBdc0792F5485c4cb0a9bEf06C4f21541D52'},
+    'polygon': {'url': 'https://rpc.omnirpc.io/confirmations/1/rpc/137', 'bridge': '0x966e35C01842D029cFceDdc7a7fEB937C2F62A8a', 'multisig': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A'}
+}
