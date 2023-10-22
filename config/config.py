@@ -25,31 +25,6 @@ chains = {
     'polygon': {'url': os.getenv('POLYGON_RPC'), 'bridge': '0x8F5BBB2BB8c2Ee94639E55d5F41de9b4839C1280', 'multisig': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A'}
 }
 
-# need to insert something for 
-#base and canto have the wrong multisig addresses
-chainIds = {
-    'arbitrum': 42161,
-    'aurora': 1313161554,
-    'avax': 43114,
-    'base': 8453, 
-    'boba': 288, 
-    'bsc': 56,
-    'canto': 7700,
-    'cronos': 25,
-    'dfk': 53935,
-    'dogechain': 2000,
-    'ethereum': 1,
-    'fantom': 250,
-    'harmony': 1666600000,
-    'klaytn': 8217,
-    'metis': 1088,
-    'moonriver': 1285,
-    'moonbeam': 1284,  
-    'optimism': 10,  
-    'polygon': 137
-}
-
-#The "moons" are not audited rn 
 tokens_by_chain = {
     'ethereum': [
         ("ETH", "0x0000000000000000000000000000000000000000", 18),
