@@ -20,17 +20,19 @@ def make_rpc_request(url, method, params=None):
     else:
         raise Exception(f"RPC request failed with status code: {response.status_code}")
     
-def get_balance(chain_name, msig_address, token_address, decimals, blocknumber):
+def get_balance(chain_name, msig_address, token_address, decimals, blocknumber = "Latest"):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
 
+    if blocknumber is not "Latest":
+        blocknumber =hex(blocknumber)
     # Define the method and params
     data = "0x70a08231" + msig_address[2:].zfill(64)
     method = "eth_call"
     params = [{
         "to": token_address,
         "data": data  # balanceOf method signature + address without '0x'
-    }, hex(blocknumber)]
+    }, blocknumber]
 
     try:
         # Make the RPC request
@@ -50,10 +52,11 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber):
 
     return balance
 
-def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber):
+def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber = "Latest"):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
-
+    if blocknumber is not "Latest":
+        blocknumber =hex(blocknumber)
     # Define the method and params
     # Function signature hash for getFeeBalance(address) is "0xc78f6803"
     data = "0xc78f6803" + token_address[2:].zfill(64)
@@ -61,7 +64,7 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknu
     params = [{
         "to": bridge_address,
         "data": data
-    }, hex(blocknumber)]
+    }, blocknumber]
 
     try:
         # Make the RPC request
@@ -81,12 +84,14 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknu
 
     return balance
 
-def get_defillama_price(chain_name, token_address, timestamp):
-    # Define the URL (Current)
-    # url = f"https://coins.llama.fi/prices/current/{chain_name}:{token_address}?searchWidth=4h"
-
-    # Define the URL (historical)
-    url = f"https://coins.llama.fi/prices/historical/{timestamp}/{chain_name}:{token_address}?searchWidth=4h"
+def get_defillama_price(chain_name, token_address, timestamp = None):
+    if timestamp is None:
+        # Define the URL (Current)
+        url = f"https://coins.llama.fi/prices/current/{chain_name}:{token_address}?searchWidth=4h"
+    else:
+        # Define the URL (historical)
+        url = f"https://coins.llama.fi/prices/historical/{timestamp}/{chain_name}:{token_address}?searchWidth=4h"
+    
     try:
         # Make the GET request
         response = requests.get(url)
@@ -105,7 +110,7 @@ def get_defillama_price(chain_name, token_address, timestamp):
     
 
 # First thing is to call get_balance of each of these tokens on the multisig and then run it through the DL price API 
-def get_token_balances_and_values(timestamp, month):
+def get_token_balances_and_values(timestamp = None, month = "Current", specific_chain=None):
     # Initialize a dictionary to store the sums
     sums = {}
 
@@ -121,12 +126,21 @@ def get_token_balances_and_values(timestamp, month):
 
             # 2. For each chain, iterate over the tokens supported by that chain
             for token in tokens_by_chain.get(chain_name, []):
+                if specific_chain and chain_name != specific_chain:
+                    continue
+                if month is "Current": 
+                    block = None
+                else: 
+                    block = times[chain_name][month-1]
                 # 3. Call the getBalance method on the multisig contract for each token
-                balance = get_balance(chain_name, chain_data['multisig'], token[1], token[2], times[chain_name][month-1] )
+                balance = get_balance(chain_name, chain_data['multisig'], token[1], token[2], block )
                 # Call the getFeeBalance method on the bridge contract for each token
-                fee_balance = get_fee_balance(chain_name, chain_data['bridge'], token[1], token[2], times[chain_name][month-1])
+                fee_balance = get_fee_balance(chain_name, chain_data['bridge'], token[1], token[2], block)
                 # 4. Call the DeFiLlama API to get the price of the token
-                price = get_defillama_price(chain_name, token[1], timestamp)
+                if timestamp is None:
+                    price = get_defillama_price(chain_name, token[1])
+                else: 
+                    price = get_defillama_price(chain_name, token[1], timestamp)
                 # 5. Multiply the balance by the price to get the value
                 claimed_value = balance * price
                 unclaimed_value = fee_balance * price
@@ -149,12 +163,20 @@ def get_token_balances_and_values(timestamp, month):
             writer.writerow([chain_name, values["Claimed Fees"], values["Unclaimed Fees"]])
 
 
+
+# Call this to redo the backfill
 def backfill_treasury_balances():
     month = 1
     for time in month_timestamps:
+        # Can specify a specific_chain value to restrict the program to only those chains.
         get_token_balances_and_values(time, month)
         month += 1
 
+# Call this to get the current balances 
+def get_current_balances():
+    # Can specify a specific_chain value to restrict the program to only those chains.
+    get_token_balances_and_values()
+
 if __name__ == "__main__":
-    # get_token_balances_and_values()
+    # get_current_balances()
     backfill_treasury_balances()
