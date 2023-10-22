@@ -1,7 +1,6 @@
 import json
 import requests
 import csv
-from web3 import Web3
 from config.config import chains, tokens_by_chain
 from config.timeData import times, month_timestamps
 
@@ -31,7 +30,7 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber):
     params = [{
         "to": token_address,
         "data": data  # balanceOf method signature + address without '0x'
-    }, blocknumber]
+    }, hex(blocknumber)]
 
     try:
         # Make the RPC request
@@ -47,7 +46,6 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber):
         balance /= 10 ** decimals
 
     except Exception as e:
-        # print(f"Error occurred: {e}. Setting balance to 0.")
         balance = 0
 
     return balance
@@ -57,13 +55,13 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknu
     url = chains[chain_name]['url']
 
     # Define the method and params
-    # Function signature hash for getFeeBalance(address) is "0x4e71d92d"
+    # Function signature hash for getFeeBalance(address) is "0xc78f6803"
     data = "0xc78f6803" + token_address[2:].zfill(64)
     method = "eth_call"
     params = [{
         "to": bridge_address,
         "data": data
-    }, blocknumber]
+    }, hex(blocknumber)]
 
     try:
         # Make the RPC request
@@ -156,8 +154,6 @@ def backfill_treasury_balances():
     for time in month_timestamps:
         get_token_balances_and_values(time, month)
         month += 1
-
-#claimed, unclaimed, and total 
 
 if __name__ == "__main__":
     # get_token_balances_and_values()
