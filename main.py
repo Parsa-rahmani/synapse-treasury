@@ -24,7 +24,7 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber =
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
 
-    if blocknumber is not "Latest":
+    if blocknumber is not "Latest" and blocknumber is not None:
         blocknumber =hex(blocknumber)
     # Define the method and params
     data = "0x70a08231" + msig_address[2:].zfill(64)
@@ -55,7 +55,7 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber =
 def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber = "Latest"):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
-    if blocknumber is not "Latest":
+    if blocknumber is not "Latest" and blocknumber is not None:
         blocknumber =hex(blocknumber)
     # Define the method and params
     # Function signature hash for getFeeBalance(address) is "0xc78f6803"
@@ -178,5 +178,5 @@ def get_current_balances():
     get_token_balances_and_values()
 
 if __name__ == "__main__":
-    # get_current_balances()
-    backfill_treasury_balances()
+    get_current_balances()
+    # backfill_treasury_balances()

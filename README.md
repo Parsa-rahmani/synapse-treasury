@@ -36,6 +36,7 @@ project/
     └── timestamps.py
 ```
 Updates to come:
+- Current Data fetch is currently buggy
 - Possibly a fetch method to get the latest cached data (?)
 - Code Clean up 
 - Better testing
