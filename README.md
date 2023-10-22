@@ -36,9 +36,10 @@ project/
     └── timestamps.py
 ```
 Updates to come:
-- Filter the script by chain
-- Code refactoring to allow both real time and historical data.
-- Possibly a fetch method to get the latest cached data
+- Possibly a fetch method to get the latest cached data (?)
+- Code Clean up 
+- Better testing
+- Turn into a cli for better usability
 
 Notes: 
 - Relies on the Defillama pricing API for all prices
