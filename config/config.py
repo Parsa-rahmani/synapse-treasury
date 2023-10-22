@@ -25,6 +25,7 @@ chains = {
     'polygon': {'url': os.getenv('POLYGON_RPC'), 'bridge': '0x8F5BBB2BB8c2Ee94639E55d5F41de9b4839C1280', 'multisig': '0xBdD38B2eaae34C9FCe187909e81e75CBec0dAA7A'}
 }
 
+# need to insert something for 
 #base and canto have the wrong multisig addresses
 chainIds = {
     'arbitrum': 42161,

@@ -1,5 +1,5 @@
 Things to do : 
-- note tha this currently doesnt include cctp contracts (may need to add)
+- note that this currently doesnt include cctp contracts (may need to add)
 
 
-withdrawFees
+

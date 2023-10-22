@@ -2,7 +2,8 @@ import json
 import requests
 import csv
 from web3 import Web3
-from config import chains, tokens_by_chain
+from config.config import chains, tokens_by_chain
+from config.timeData import times, month_timestamps
 
 
 def make_rpc_request(url, method, params=None):
@@ -10,7 +11,6 @@ def make_rpc_request(url, method, params=None):
         "jsonrpc": "2.0",
         "method": method,
         "params": params or [],
-        # This needs 
         "id": 1
     }
 
@@ -21,7 +21,7 @@ def make_rpc_request(url, method, params=None):
     else:
         raise Exception(f"RPC request failed with status code: {response.status_code}")
     
-def get_balance(chain_name, msig_address, token_address, decimals):
+def get_balance(chain_name, msig_address, token_address, decimals, blocknumber):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
 
@@ -31,23 +31,28 @@ def get_balance(chain_name, msig_address, token_address, decimals):
     params = [{
         "to": token_address,
         "data": data  # balanceOf method signature + address without '0x'
-    }, "latest"]
+    }, blocknumber]
 
-    # Make the RPC request
-    response = make_rpc_request(url, method, params)
+    try:
+        # Make the RPC request
+        response = make_rpc_request(url, method, params)
 
-    # Extract the balance from the response
-    balance_hex = response["result"]  # balance in hex
-    if balance_hex == '0x':
+        # Extract the balance from the response
+        balance_hex = response["result"]  # balance in hex
+        if balance_hex == '0x':
+            balance = 0
+        else:
+            balance = int(balance_hex, 16)  # convert from hex to decimal
+        # Adjust for token decimals
+        balance /= 10 ** decimals
+
+    except Exception as e:
+        # print(f"Error occurred: {e}. Setting balance to 0.")
         balance = 0
-    else:
-        balance = int(balance_hex, 16)  # convert from hex to decimal
-    # Adjust for token decimals
-    balance /= 10 ** decimals
 
     return balance
 
-def get_fee_balance(chain_name, bridge_address, token_address, decimals):
+def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
 
@@ -58,46 +63,55 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals):
     params = [{
         "to": bridge_address,
         "data": data
-    }, "latest"]
+    }, blocknumber]
 
-    # Make the RPC request
-    response = make_rpc_request(url, method, params)
+    try:
+        # Make the RPC request
+        response = make_rpc_request(url, method, params)
 
-    # Extract the balance from the response
-    balance_hex = response["result"]  # balance in hex
-    if balance_hex == '0x':
+        # Extract the balance from the response
+        balance_hex = response["result"]  # balance in hex
+        if balance_hex == '0x':
+            balance = 0
+        else:
+            balance = int(balance_hex, 16)  # convert from hex to decimal
+        # Adjust for token decimals
+        balance /= 10 ** decimals
+
+    except Exception as e:
         balance = 0
-    else:
-        balance = int(balance_hex, 16)  # convert from hex to decimal
-
-    balance /= 10 ** decimals
 
     return balance
 
-def get_defillama_price(chain_name, token_address):
-    # Define the URL
-    url = f"https://coins.llama.fi/prices/current/{chain_name}:{token_address}?searchWidth=4h"
+def get_defillama_price(chain_name, token_address, timestamp):
+    # Define the URL (Current)
+    # url = f"https://coins.llama.fi/prices/current/{chain_name}:{token_address}?searchWidth=4h"
 
-    # Make the GET request
-    response = requests.get(url)
+    # Define the URL (historical)
+    url = f"https://coins.llama.fi/prices/historical/{timestamp}/{chain_name}:{token_address}?searchWidth=4h"
+    try:
+        # Make the GET request
+        response = requests.get(url)
 
-    # Check the status code
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-        # Extract the price
-        price = data['coins'][f'{chain_name}:{token_address}']['price']
-        return price
-    else:
-        raise Exception(f"DeFiLlama API request failed with status code: {response.status_code}")
+        # Check the status code
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+            # Extract the price
+            price = data['coins'][f'{chain_name}:{token_address}']['price']
+            return price
+        else:
+            raise Exception()
+    except Exception as e:
+        return 0
     
 
 # First thing is to call get_balance of each of these tokens on the multisig and then run it through the DL price API 
-def get_token_balances_and_values():
+def get_token_balances_and_values(timestamp, month):
     # Initialize a dictionary to store the sums
     sums = {}
 
-    with open('currentTreasuryHoldings.csv', 'w', newline='') as file:
+    with open(f'treasuryHoldings_{month}_2023.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         # Write the headers
         writer.writerow(["Chain", "Token Symbol", "Value", "Type"])
@@ -110,11 +124,11 @@ def get_token_balances_and_values():
             # 2. For each chain, iterate over the tokens supported by that chain
             for token in tokens_by_chain.get(chain_name, []):
                 # 3. Call the getBalance method on the multisig contract for each token
-                balance = get_balance(chain_name, chain_data['multisig'], token[1], token[2])
+                balance = get_balance(chain_name, chain_data['multisig'], token[1], token[2], times[chain_name][month-1] )
                 # Call the getFeeBalance method on the bridge contract for each token
-                fee_balance = get_fee_balance(chain_name, chain_data['bridge'], token[1], token[2])
+                fee_balance = get_fee_balance(chain_name, chain_data['bridge'], token[1], token[2], times[chain_name][month-1])
                 # 4. Call the DeFiLlama API to get the price of the token
-                price = get_defillama_price(chain_name, token[1])
+                price = get_defillama_price(chain_name, token[1], timestamp)
                 # 5. Multiply the balance by the price to get the value
                 claimed_value = balance * price
                 unclaimed_value = fee_balance * price
@@ -128,7 +142,7 @@ def get_token_balances_and_values():
                 writer.writerow([chain_name, token[0], unclaimed_value, "Unclaimed Fees"])
 
     # Write the sums to a new CSV file
-    with open('sums.csv', 'w', newline='') as file:
+    with open(f'treasurySums_{month}_2023.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         # Write the headers
         writer.writerow(["Chain", "Claimed Fees", "Unclaimed Fees"])
@@ -136,7 +150,15 @@ def get_token_balances_and_values():
         for chain_name, values in sums.items():
             writer.writerow([chain_name, values["Claimed Fees"], values["Unclaimed Fees"]])
 
+
+def backfill_treasury_balances():
+    month = 1
+    for time in month_timestamps:
+        get_token_balances_and_values(time, month)
+        month += 1
+
 #claimed, unclaimed, and total 
 
 if __name__ == "__main__":
-    get_token_balances_and_values()
+    # get_token_balances_and_values()
+    backfill_treasury_balances()
