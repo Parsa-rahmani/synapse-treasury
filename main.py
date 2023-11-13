@@ -6,6 +6,7 @@ from config.timeData import times, month_timestamps
 
 
 def make_rpc_request(url, method, params=None):
+    print(f"Making RPC request to: {url} with method: {method} and params: {params}")
     payload = {
         "jsonrpc": "2.0",
         "method": method,
@@ -14,17 +15,20 @@ def make_rpc_request(url, method, params=None):
     }
 
     response = requests.post(url, json=payload)
+    print("Response status code:", response.status_code)
+    print("Response text:", response.text)
 
     if response.status_code == 200:
         return response.json()
     else:
         raise Exception(f"RPC request failed with status code: {response.status_code}")
+
     
-def get_balance(chain_name, msig_address, token_address, decimals, blocknumber = "Latest"):
+def get_balance(chain_name, msig_address, token_address, decimals, blocknumber = "latest"):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
 
-    if blocknumber is not "Latest" and blocknumber is not None:
+    if blocknumber != "latest" and blocknumber != None:
         blocknumber =hex(blocknumber)
     # Define the method and params
     data = "0x70a08231" + msig_address[2:].zfill(64)
@@ -32,7 +36,7 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber =
     params = [{
         "to": token_address,
         "data": data  # balanceOf method signature + address without '0x'
-    }, blocknumber]
+    }, "latest"]
 
     try:
         # Make the RPC request
@@ -52,10 +56,10 @@ def get_balance(chain_name, msig_address, token_address, decimals, blocknumber =
 
     return balance
 
-def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber = "Latest"):
+def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknumber = "latest"):
     # Get the RPC URL from the chains dictionary
     url = chains[chain_name]['url']
-    if blocknumber is not "Latest" and blocknumber is not None:
+    if blocknumber != "latest" and blocknumber != None:
         blocknumber =hex(blocknumber)
     # Define the method and params
     # Function signature hash for getFeeBalance(address) is "0xc78f6803"
@@ -64,7 +68,7 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknu
     params = [{
         "to": bridge_address,
         "data": data
-    }, blocknumber]
+    }, "latest"]
 
     try:
         # Make the RPC request
@@ -85,7 +89,7 @@ def get_fee_balance(chain_name, bridge_address, token_address, decimals, blocknu
     return balance
 
 def get_defillama_price(chain_name, token_address, timestamp = None):
-    if timestamp is None:
+    if timestamp == None:
         # Define the URL (Current)
         url = f"https://coins.llama.fi/prices/current/{chain_name}:{token_address}?searchWidth=4h"
     else:
@@ -128,7 +132,7 @@ def get_token_balances_and_values(timestamp = None, month = "Current", specific_
             for token in tokens_by_chain.get(chain_name, []):
                 if specific_chain and chain_name != specific_chain:
                     continue
-                if month is "Current": 
+                if month == "Current": 
                     block = None
                 else: 
                     block = times[chain_name][month-1]
@@ -137,7 +141,7 @@ def get_token_balances_and_values(timestamp = None, month = "Current", specific_
                 # Call the getFeeBalance method on the bridge contract for each token
                 fee_balance = get_fee_balance(chain_name, chain_data['bridge'], token[1], token[2], block)
                 # 4. Call the DeFiLlama API to get the price of the token
-                if timestamp is None:
+                if timestamp == None:
                     price = get_defillama_price(chain_name, token[1])
                 else: 
                     price = get_defillama_price(chain_name, token[1], timestamp)
